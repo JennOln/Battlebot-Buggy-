@@ -1,0 +1,137 @@
+// FS-IA6 Receiver Test
+#define N 6     // Define channels
+#define ch1 22  // No Activated
+#define ch2 24  // Down & Up
+#define ch3 26  // Motors Left & Right Down & Up
+#define ch5 30  // Active Weapon
+#define ch6 32  // Turn On/Off Robot Battle
+int ch[N];  // Channel Array
+
+
+//Motor Right
+#define LPWM 9
+#define RPWM 10
+#define PWM 11
+
+//Motor Left
+#define RPWM2 6
+#define LPWM2 7
+#define PWM2  8
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(ch1, INPUT);
+  pinMode(ch2, INPUT);
+  pinMode(ch3, INPUT);
+  pinMode(ch5, INPUT);
+  pinMode(ch6, INPUT);
+
+  //MOTOR 1
+  pinMode (RPWM, OUTPUT);
+  pinMode(PWM, OUTPUT);
+  pinMode (LPWM, OUTPUT);
+
+  //MOTOR 2
+  pinMode(RPWM2, OUTPUT);
+  pinMode(PWM2, OUTPUT);
+  pinMode(LPWM2, OUTPUT);
+
+}
+
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  ch[0] = pulseIn(ch1, HIGH);  // Motors Left & Right
+  ch[1] = pulseIn(ch2, HIGH);  // Motors Down & Up
+  ch[2] = pulseIn(ch3, HIGH);  // Weapon Down & Up
+  ch[4] = pulseIn(ch5, HIGH);  // Active/Desactive Weapon
+  ch[5] = pulseIn(ch6, HIGH);  // Turn On/Off Robot Battle
+
+  //If buggy robot is on, active all control channels 
+  if (ch[4] < 1400) {
+    robotMove();
+    activeWeapon();
+    Serial.println("ROBOT ON");
+  } //if not, keep desactivate all channels 
+  else {
+    analogWrite(PWM, 0);
+    Serial.println("ROBOT OFF");
+  }
+
+}
+
+void activeWeapon() {
+  if (ch[5] < 1400) {
+    Serial.println("WEAPON ON");
+  } else {
+    Serial.println("WEAPON OFF");
+  }
+}
+
+
+void robotMove() {
+  //Channel 2 UP AND DOWN
+  if (ch[1] > 1400 && ch[1] < 2000) {  // FORWARD
+    //MOTOR 1
+    Serial.println("FORWARD");
+    digitalWrite(LPWM, LOW);
+    digitalWrite(RPWM, HIGH);
+    analogWrite(PWM, 255);
+
+    //MOTOR 2
+    digitalWrite(LPWM2, HIGH);
+    digitalWrite(RPWM2, LOW);
+    analogWrite(PWM2, 255);
+
+  }
+  if (ch[1] > 980 && ch[1] < 1200) {  // BACK
+    //MOTOR
+    Serial.println("BACK");
+    digitalWrite(LPWM, HIGH);
+    digitalWrite(RPWM, LOW);
+    analogWrite(PWM, 255);
+
+    //MOTOR 2
+    Serial.println("BACK");
+    digitalWrite(LPWM2, LOW);
+    digitalWrite(RPWM2, HIGH);
+    analogWrite(PWM2, 255);
+  }
+  if (ch[1] > 1380 && ch[1] < 1400 && ch[2] > 1500 && ch[2] < 1580) {  // STOP
+    //MOTOR
+    Serial.println("STOP");
+    digitalWrite(LPWM, LOW);
+    digitalWrite(RPWM, LOW);
+    analogWrite(PWM, 0);
+
+    //MOTOR 2
+    digitalWrite(LPWM2, LOW);
+    digitalWrite(RPWM2, LOW);
+    analogWrite(PWM2, 0);
+  }
+  if (ch[2] > 1000 && ch[2] < 1350) {  // LEFT
+    Serial.println("LEFT");
+    // MOTOR 1
+    digitalWrite(LPWM, LOW);
+    digitalWrite(RPWM, HIGH);
+    analogWrite(PWM, 255);
+
+    //MOTOR 2
+    digitalWrite(LPWM2, LOW);
+    digitalWrite(RPWM2, HIGH);
+    analogWrite(PWM2, 255);
+  }
+  if (ch[2] > 1600 && ch[2] < 2000) {  // RIGHT
+    Serial.println("RIGHT");
+    // MOTOR 1
+    digitalWrite(LPWM, HIGH);
+    digitalWrite(RPWM, LOW);
+    analogWrite(PWM, 255);
+
+    //MOTOR 2
+    digitalWrite(LPWM2, HIGH);
+    digitalWrite(RPWM2, LOW);
+    analogWrite(PWM2, 255);
+  }
+}
+// Made by Jennifer González
